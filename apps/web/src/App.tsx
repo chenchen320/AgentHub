@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers } from 'lucide-react';
 import { ChatMessage, AgentType, TaskStatus } from '@agenthub/shared';
+import { io, Socket } from 'socket.io-client';
 
+const socket: Socket = io('http://localhost:3001');
 
 const MainLayout = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -16,9 +18,33 @@ const MainLayout = () => {
     }
   ]);
   const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    socket.on('aiChunk', (data: { chunk: string, conversationId: string }) => {
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMsg = newMessages[newMessages.length - 1];
+        if (lastMsg && lastMsg.role === 'assistant') {
+          lastMsg.content += data.chunk;
+        }
+        return newMessages;
+      });
+    });
+
+    socket.on('aiComplete', (data: { fullContent: string, agentType: AgentType }) => {
+      setIsTyping(false);
+    });
+
+    return () => {
+      socket.off('aiChunk');
+      socket.off('aiComplete');
+    };
+  }, []);
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;
+    
     const userMsg: ChatMessage = { 
       id: Date.now().toString(),
       conversationId: 'default',
@@ -26,21 +52,26 @@ const MainLayout = () => {
       content: input, 
       createdAt: new Date().toISOString() 
     };
-    setMessages([...messages, userMsg]);
+
+    const placeholderMsg: ChatMessage = {
+      id: (Date.now() + 1).toString(),
+      conversationId: 'default',
+      role: 'assistant',
+      content: '',
+      agentType: AgentType.ORCHESTRATOR,
+      createdAt: new Date().toISOString()
+    };
+
+    setMessages([...messages, userMsg, placeholderMsg]);
     setInput('');
+    setIsTyping(true);
     
-    // Simulate agent response
-    setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        id: (Date.now() + 1).toString(),
-        conversationId: 'default',
-        role: 'assistant', 
-        content: `I've received your request: "${input}". I'll begin processing it shortly.`, 
-        agentType: AgentType.ORCHESTRATOR,
-        createdAt: new Date().toISOString() 
-      }]);
-    }, 1000);
+    socket.emit('sendMessage', {
+      messages: [...messages, userMsg],
+      agentType: AgentType.ORCHESTRATOR
+    });
   };
+
 
   return (
     <div className="flex h-screen w-screen bg-slate-900 text-slate-100 overflow-hidden">
