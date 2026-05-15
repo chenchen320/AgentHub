@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers } from 'lucide-react';
+import { 
+  MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers, 
+  Terminal, Zap, Github, ChevronRight, PanelLeftClose, PlusCircle
+} from 'lucide-react';
 import type { ChatMessage } from '@agenthub/shared';
-import { AgentType, TaskStatus } from '@agenthub/shared';
+import { AgentType } from '@agenthub/shared';
 import { io, Socket } from 'socket.io-client';
 
 const socket: Socket = io('http://localhost:3001');
@@ -13,13 +16,14 @@ const MainLayout = () => {
       id: '1', 
       conversationId: 'default', 
       role: 'assistant', 
-      content: 'Hello! I am AgentHub. How can I help you build today?', 
+      content: 'Hello! I am AgentHub Orchestrator. I can help you decompose complex requirements and coordinate with other agents to build your project. What are we building today?', 
       agentType: AgentType.ORCHESTRATOR,
       createdAt: new Date().toISOString() 
     }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     socket.on('aiChunk', (data: { chunk: string, conversationId: string }) => {
@@ -27,13 +31,16 @@ const MainLayout = () => {
         const newMessages = [...prev];
         const lastMsg = newMessages[newMessages.length - 1];
         if (lastMsg && lastMsg.role === 'assistant') {
-          lastMsg.content += data.chunk;
+          return [
+            ...newMessages.slice(0, -1),
+            { ...lastMsg, content: lastMsg.content + data.chunk }
+          ];
         }
         return newMessages;
       });
     });
 
-    socket.on('aiComplete', (data: { fullContent: string, agentType: AgentType }) => {
+    socket.on('aiComplete', () => {
       setIsTyping(false);
     });
 
@@ -42,6 +49,12 @@ const MainLayout = () => {
       socket.off('aiComplete');
     };
   }, []);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSend = () => {
     if (!input.trim() || isTyping) return;
@@ -63,7 +76,7 @@ const MainLayout = () => {
       createdAt: new Date().toISOString()
     };
 
-    setMessages([...messages, userMsg, placeholderMsg]);
+    setMessages(prev => [...prev, userMsg, placeholderMsg]);
     setInput('');
     setIsTyping(true);
     
@@ -73,128 +86,216 @@ const MainLayout = () => {
     });
   };
 
-
   return (
-    <div className="flex h-screen w-screen bg-slate-900 text-slate-100 overflow-hidden">
-      {/* Left Sidebar: Sessions & Agents */}
-      <aside className="w-64 border-r border-slate-700 flex flex-col bg-slate-800">
-        <div className="p-4 border-b border-slate-700 flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center font-bold">AH</div>
-          <h1 className="text-xl font-bold">AgentHub</h1>
-        </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <div>
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">History</h2>
-            <div className="space-y-1">
-              <button className="w-full text-left p-2 rounded bg-slate-700 text-sm">Initialize Project</button>
-              <button className="w-full text-left p-2 rounded hover:bg-slate-700/50 text-sm text-slate-400">Setup Database</button>
+    <div className="flex h-screen w-screen bg-[#020617] text-slate-200 font-sans selection:bg-indigo-500/30 overflow-hidden">
+      {/* Left Sidebar: Glassmorphism effect */}
+      <aside className="w-72 border-r border-slate-800/60 flex flex-col bg-slate-900/40 backdrop-blur-xl">
+        <div className="p-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <Zap size={20} className="text-white fill-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">AgentHub</h1>
+              <p className="text-[10px] text-indigo-400 font-medium uppercase tracking-tighter">v1.0.0 Dev</p>
             </div>
           </div>
-          <div>
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Agents</h2>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 p-2 text-sm text-indigo-400 font-medium">
-                <Bot size={16} /> Orchestrator
-              </div>
-              <div className="flex items-center gap-2 p-2 text-sm text-slate-400">
-                <Code size={16} /> Coder
-              </div>
-              <div className="flex items-center gap-2 p-2 text-sm text-slate-400">
-                <Search size={16} /> Reviewer
-              </div>
-            </div>
-          </div>
+          <PanelLeftClose size={18} className="text-slate-500 cursor-pointer hover:text-slate-300 transition-colors" />
         </div>
-        <div className="p-4 border-t border-slate-700 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center">
-            <User size={18} />
+
+        <div className="px-4 mb-4">
+          <button className="w-full py-2.5 px-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-lg flex items-center gap-2 text-sm font-medium transition-all group">
+            <PlusCircle size={16} className="text-indigo-400 group-hover:scale-110 transition-transform" />
+            New Project
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-3 space-y-6">
+          <section>
+            <h2 className="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <MessageSquare size={12} /> Active Sessions
+            </h2>
+            <div className="space-y-1">
+              {['Initialize AgentHub', 'Refactor UI Design', 'Database Schema'].map((item, i) => (
+                <div key={i} className={`group flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${i === 0 ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20' : 'hover:bg-slate-800/40 text-slate-400'}`}>
+                  <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]' : 'bg-slate-700'}`} />
+                  <span className="text-sm truncate font-medium">{item}</span>
+                  <ChevronRight size={14} className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+              <Bot size={12} /> Team Agents
+            </h2>
+            <div className="space-y-1 px-1">
+              {[
+                { name: 'Orchestrator', role: 'System Brain', icon: Bot, color: 'text-indigo-400' },
+                { name: 'Coder', role: 'Implementation', icon: Code, color: 'text-emerald-400' },
+                { name: 'Reviewer', role: 'Security & QA', icon: Search, color: 'text-amber-400' }
+              ].map((agent, i) => (
+                <div key={i} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-800/30 transition-colors group cursor-pointer">
+                  <div className={`w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700/50 ${agent.color}`}>
+                    <agent.icon size={16} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-300">{agent.name}</p>
+                    <p className="text-[10px] text-slate-500">{agent.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <div className="p-4 bg-slate-900/60 border-t border-slate-800/60 mt-auto">
+          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-800/50 transition-colors cursor-pointer group">
+            <div className="relative">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 p-[2px]">
+                <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                  <User size={20} className="text-slate-400" />
+                </div>
+              </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold text-slate-200">Main Developer</p>
+              <p className="text-[10px] text-slate-500 font-medium">Online</p>
+            </div>
+            <Settings size={18} className="text-slate-600 group-hover:text-slate-300 transition-colors" />
           </div>
-          <span className="text-sm font-medium">Developer</span>
-          <Settings size={18} className="ml-auto text-slate-400 cursor-pointer hover:text-slate-200" />
         </div>
       </aside>
 
-      {/* Center: IM Chat Window */}
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-900">
-        <header className="h-16 border-b border-slate-700 flex items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <MessageSquare size={20} className="text-indigo-400" />
-            <h2 className="font-semibold">Main Project Chat</h2>
+      {/* Center: Main Chat Area */}
+      <main className="flex-1 flex flex-col min-w-0 bg-[#020617] relative">
+        <header className="h-16 border-b border-slate-800/60 flex items-center justify-between px-8 bg-slate-900/20 backdrop-blur-sm z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+            <h2 className="text-sm font-bold tracking-tight text-slate-200">Main Project Chat</h2>
+            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">PRIVATE</span>
           </div>
           <div className="flex items-center gap-4">
-            <button className="text-sm text-slate-400 hover:text-slate-200">Share</button>
-            <button className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 rounded text-sm font-medium transition">Deploy</button>
+            <div className="flex -space-x-2 mr-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-slate-900 bg-slate-800 flex items-center justify-center">
+                  <Bot size={12} className="text-slate-500" />
+                </div>
+              ))}
+            </div>
+            <button className="p-2 text-slate-400 hover:text-white transition-colors">
+              <Github size={18} />
+            </button>
+            <div className="h-4 w-[1px] bg-slate-800 mx-1" />
+            <button className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all active:scale-95">
+              Deploy App
+            </button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Message List */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth custom-scrollbar">
           {messages.map((msg, i) => (
-            <div key={i} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'assistant' && (
-                <div className="w-8 h-8 rounded bg-indigo-600/20 text-indigo-400 flex items-center justify-center shrink-0">
-                  <Bot size={20} />
-                </div>
-              )}
-              <div className={`max-w-[80%] rounded-lg p-4 ${
+            <div key={i} className={`flex gap-5 ${msg.role === 'user' ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-4 duration-300`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
                 msg.role === 'user' 
-                  ? 'bg-indigo-600 text-white rounded-tr-none' 
-                  : 'bg-slate-800 border border-slate-700 rounded-tl-none'
+                  ? 'bg-slate-800 border border-slate-700 text-slate-300' 
+                  : 'bg-gradient-to-br from-indigo-500/20 to-violet-600/20 border border-indigo-500/30 text-indigo-400'
               }`}>
-                <p className="text-sm leading-relaxed">{msg.content}</p>
-                <div className="mt-2 text-[10px] opacity-50">
-                  {new Date(msg.createdAt).toLocaleTimeString()}
-                </div>
+                {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
               </div>
-              {msg.role === 'user' && (
-                <div className="w-8 h-8 rounded bg-slate-700 flex items-center justify-center shrink-0">
-                  <User size={20} />
+              
+              <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-[75%]`}>
+                <div className={`rounded-2xl p-4 text-sm leading-relaxed shadow-sm ${
+                  msg.role === 'user' 
+                    ? 'bg-indigo-600 text-white rounded-tr-none' 
+                    : 'bg-slate-900/50 border border-slate-800/80 text-slate-300 rounded-tl-none backdrop-blur-sm'
+                }`}>
+                  {msg.content === '' && isTyping && i === messages.length - 1 ? (
+                    <div className="flex gap-1 py-1">
+                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></span>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                  )}
                 </div>
-              )}
+                <span className="mt-2 text-[9px] font-bold text-slate-600 uppercase tracking-tighter">
+                  {msg.role === 'user' ? 'Developer' : msg.agentType?.toUpperCase() || 'AGENT'} • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="p-6 border-t border-slate-700">
-          <div className="relative group">
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-              placeholder="Ask @Orchestrator to build something..."
-              className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition resize-none h-14"
-            />
-            <button 
-              onClick={handleSend}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-400 transition"
-            >
-              <Send size={20} />
-            </button>
+        {/* Input Area */}
+        <div className="p-8 pt-4">
+          <div className="max-w-4xl mx-auto relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-2xl blur opacity-10 group-focus-within:opacity-25 transition duration-500"></div>
+            <div className="relative bg-[#0f172a] border border-slate-800 rounded-2xl p-2 pr-4 flex items-end gap-2 shadow-2xl transition-all focus-within:border-indigo-500/50">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
+                placeholder="Message AgentHub... (Use @ to tag agents)"
+                className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-4 min-h-[52px] max-h-48 resize-none text-slate-200 placeholder-slate-600"
+              />
+              <button 
+                onClick={handleSend}
+                disabled={!input.trim() || isTyping}
+                className={`mb-2 p-2 rounded-xl transition-all flex items-center justify-center ${
+                  !input.trim() || isTyping 
+                    ? 'text-slate-700 bg-slate-800/50 cursor-not-allowed' 
+                    : 'text-white bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95'
+                }`}
+              >
+                <Send size={18} />
+              </button>
+            </div>
           </div>
-          <p className="mt-2 text-[10px] text-center text-slate-500 uppercase tracking-widest">
-            Powered by AgentHub Core v1.0.0
-          </p>
+          <div className="mt-4 flex items-center justify-center gap-6 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            <span className="flex items-center gap-1.5"><Terminal size={10} /> Local Node v20.x</span>
+            <span className="flex items-center gap-1.5"><Code size={10} /> Typescript 5.x</span>
+            <span className="flex items-center gap-1.5"><Layers size={10} /> Prisma DB Connected</span>
+          </div>
         </div>
       </main>
 
       {/* Right Sidebar: Dynamic Workspace */}
-      <aside className="w-[450px] border-l border-slate-700 flex flex-col bg-slate-800">
-        <nav className="h-16 border-b border-slate-700 flex items-center px-4 gap-4">
-          <button className="flex items-center gap-2 text-sm font-medium border-b-2 border-indigo-500 h-full px-2 text-indigo-400">
-            <Layout size={16} /> Preview
+      <aside className="w-[450px] border-l border-slate-800/60 flex flex-col bg-slate-900/40 backdrop-blur-xl">
+        <nav className="h-16 border-b border-slate-800/60 flex items-center px-6 gap-8">
+          <button className="relative flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-indigo-400">
+            Preview
+            <div className="absolute -bottom-[23px] left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
           </button>
-          <button className="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-200 h-full px-2">
-            <Code size={16} /> Diff
+          <button className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors">
+            Diff
           </button>
-          <button className="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-200 h-full px-2 ml-auto">
-            <Layers size={16} /> Tasks
+          <button className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors ml-auto">
+            History
           </button>
         </nav>
-        <div className="flex-1 bg-slate-950 p-4 flex items-center justify-center text-slate-600 italic text-sm">
-          <div className="text-center">
-            <div className="w-16 h-16 border-2 border-dashed border-slate-800 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Code size={24} />
+        
+        <div className="flex-1 bg-[#020617] m-4 rounded-xl border border-slate-800/80 shadow-inner overflow-hidden flex flex-col">
+          <div className="h-8 bg-slate-900/80 border-b border-slate-800/80 flex items-center px-4 gap-2">
+            <div className="flex gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-800" />
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-800" />
+              <div className="w-2.5 h-2.5 rounded-full bg-slate-800" />
             </div>
-            <p>Ready to render code preview...</p>
+            <div className="mx-auto text-[10px] text-slate-500 font-mono tracking-tighter">localhost:5173/preview</div>
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
+            <div className="w-20 h-20 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 shadow-2xl group transition-transform hover:rotate-3">
+              <Code size={32} className="text-slate-700 group-hover:text-indigo-400 transition-colors" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-400 mb-2">Workspace Ready</h3>
+            <p className="text-[11px] text-slate-600 leading-relaxed max-w-[200px]">
+              AI generated previews and code comparisons will appear here.
+            </p>
           </div>
         </div>
       </aside>
