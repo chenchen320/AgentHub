@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  avatar        String?
+  createdAt     DateTime       @default(now())
+  conversations Conversation[]
+}
+
+model Conversation {
+  id        String      @id @default(uuid())
+  title     String
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  status    String      @default("active") // active, completed
+  createdAt DateTime    @default(now())
+  messages  Message[]
+  tasks     AgentTask[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  role           String       // user, agent
+  content        String
+  agentType      String?      // orchestrator, coder, reviewer
+  createdAt      DateTime     @default(now())
+}
+
+model AgentTask {
+  id             String         @id @default(uuid())
+  conversationId String
+  conversation   Conversation   @relation(fields: [conversationId], references: [id])
+  title          String
+  status         String         @default("pending") // pending, doing, done
+  resultCode     String?
+  createdAt      DateTime       @default(now())
+  snapshots      FileSnapshot[]
+}
+
+model FileSnapshot {
+  id          String    @id @default(uuid())
+  taskId      String
+  task        AgentTask @relation(fields: [taskId], references: [id])
+  filePath    String
+  contentDiff String
+  isAccepted  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}

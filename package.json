@@ -1,0 +1,16 @@
+{
+  "name": "agenthub",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/web\" \"npm run dev -w apps/server\"",
+    "build": "npm run build --workspaces"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "concurrently": "^8.2.0"
+  }
+}
