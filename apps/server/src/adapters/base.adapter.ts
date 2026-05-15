@@ -1,4 +1,5 @@
-import { ChatMessage, AgentType } from '@agenthub/shared';
+import { AgentType } from '@agenthub/shared';
+import type { ChatMessage } from '@agenthub/shared';
 
 export interface StreamResponse {
   onChunk: (callback: (chunk: string) => void) => void;

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers } from 'lucide-react';
-import { ChatMessage, AgentType, TaskStatus } from '@agenthub/shared';
+import type { ChatMessage } from '@agenthub/shared';
+import { AgentType, TaskStatus } from '@agenthub/shared';
 import { io, Socket } from 'socket.io-client';
 
 const socket: Socket = io('http://localhost:3001');

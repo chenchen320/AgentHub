@@ -4,7 +4,8 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { MockAdapter } from './adapters/mock.adapter.js';
-import { AgentType, ChatMessage } from '@agenthub/shared';
+import { AgentType } from '@agenthub/shared';
+import type { ChatMessage } from '@agenthub/shared';
 
 dotenv.config();
 
