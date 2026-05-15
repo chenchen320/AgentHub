@@ -1,6 +1,6 @@
 import { AgentType } from '@agenthub/shared';
 import type { ChatMessage } from '@agenthub/shared';
-import { BaseAgentAdapter, StreamResponse } from './base.adapter.ts';
+import { BaseAgentAdapter, StreamResponse } from './base.adapter.js';
 
 export class MockAdapter extends BaseAgentAdapter {
   name = 'Mock AI';

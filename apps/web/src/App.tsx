@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { 
   MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers, 
-  Terminal, Zap, Github, ChevronRight, PanelLeftClose, PlusCircle
+  Terminal, Zap, Github as GithubIcon, ChevronRight, PanelLeftClose, PlusCircle
 } from 'lucide-react';
 import type { ChatMessage } from '@agenthub/shared';
 import { AgentType } from '@agenthub/shared';
@@ -16,7 +16,7 @@ const MainLayout = () => {
       id: '1', 
       conversationId: 'default', 
       role: 'assistant', 
-      content: 'Hello! I am AgentHub Orchestrator. I can help you decompose complex requirements and coordinate with other agents to build your project. What are we building today?', 
+      content: '你好！我是 AgentHub 协调器。我可以帮你拆解复杂需求，并协调其他 Agent 共同完成你的项目。今天我们打算构建什么？', 
       agentType: AgentType.ORCHESTRATOR,
       createdAt: new Date().toISOString() 
     }
@@ -88,7 +88,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen w-screen bg-[#020617] text-slate-200 font-sans selection:bg-indigo-500/30 overflow-hidden">
-      {/* Left Sidebar: Glassmorphism effect */}
+      {/* 左侧侧边栏 */}
       <aside className="w-72 border-r border-slate-800/60 flex flex-col bg-slate-900/40 backdrop-blur-xl">
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ const MainLayout = () => {
             </div>
             <div>
               <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">AgentHub</h1>
-              <p className="text-[10px] text-indigo-400 font-medium uppercase tracking-tighter">v1.0.0 Dev</p>
+              <p className="text-[10px] text-indigo-400 font-medium uppercase tracking-tighter">开发版 v1.0.0</p>
             </div>
           </div>
           <PanelLeftClose size={18} className="text-slate-500 cursor-pointer hover:text-slate-300 transition-colors" />
@@ -106,17 +106,17 @@ const MainLayout = () => {
         <div className="px-4 mb-4">
           <button className="w-full py-2.5 px-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50 rounded-lg flex items-center gap-2 text-sm font-medium transition-all group">
             <PlusCircle size={16} className="text-indigo-400 group-hover:scale-110 transition-transform" />
-            New Project
+            开启新项目
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 space-y-6">
           <section>
             <h2 className="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <MessageSquare size={12} /> Active Sessions
+              <MessageSquare size={12} /> 活跃会话
             </h2>
             <div className="space-y-1">
-              {['Initialize AgentHub', 'Refactor UI Design', 'Database Schema'].map((item, i) => (
+              {['初始化 AgentHub', '重构 UI 设计', '数据库 Schema 定义'].map((item, i) => (
                 <div key={i} className={`group flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${i === 0 ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20' : 'hover:bg-slate-800/40 text-slate-400'}`}>
                   <div className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]' : 'bg-slate-700'}`} />
                   <span className="text-sm truncate font-medium">{item}</span>
@@ -128,13 +128,13 @@ const MainLayout = () => {
 
           <section>
             <h2 className="px-3 text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <Bot size={12} /> Team Agents
+              <Bot size={12} /> 团队成员
             </h2>
             <div className="space-y-1 px-1">
               {[
-                { name: 'Orchestrator', role: 'System Brain', icon: Bot, color: 'text-indigo-400' },
-                { name: 'Coder', role: 'Implementation', icon: Code, color: 'text-emerald-400' },
-                { name: 'Reviewer', role: 'Security & QA', icon: Search, color: 'text-amber-400' }
+                { name: '协调器 (Orchestrator)', role: '系统大脑', icon: Bot, color: 'text-indigo-400' },
+                { name: '程序员 (Coder)', role: '代码实现', icon: Code, color: 'text-emerald-400' },
+                { name: '审查者 (Reviewer)', role: '安全与质检', icon: Search, color: 'text-amber-400' }
               ].map((agent, i) => (
                 <div key={i} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-800/30 transition-colors group cursor-pointer">
                   <div className={`w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700/50 ${agent.color}`}>
@@ -161,21 +161,21 @@ const MainLayout = () => {
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full" />
             </div>
             <div className="flex-1">
-              <p className="text-xs font-bold text-slate-200">Main Developer</p>
-              <p className="text-[10px] text-slate-500 font-medium">Online</p>
+              <p className="text-xs font-bold text-slate-200">主开发人员</p>
+              <p className="text-[10px] text-slate-500 font-medium">在线</p>
             </div>
             <Settings size={18} className="text-slate-600 group-hover:text-slate-300 transition-colors" />
           </div>
         </div>
       </aside>
 
-      {/* Center: Main Chat Area */}
+      {/* 中间：主聊天区域 */}
       <main className="flex-1 flex flex-col min-w-0 bg-[#020617] relative">
         <header className="h-16 border-b border-slate-800/60 flex items-center justify-between px-8 bg-slate-900/20 backdrop-blur-sm z-10">
           <div className="flex items-center gap-3">
             <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-            <h2 className="text-sm font-bold tracking-tight text-slate-200">Main Project Chat</h2>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">PRIVATE</span>
+            <h2 className="text-sm font-bold tracking-tight text-slate-200">主项目会话</h2>
+            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">私密</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex -space-x-2 mr-4">
@@ -186,16 +186,16 @@ const MainLayout = () => {
               ))}
             </div>
             <button className="p-2 text-slate-400 hover:text-white transition-colors">
-              <Github size={18} />
+              <GithubIcon size={18} />
             </button>
             <div className="h-4 w-[1px] bg-slate-800 mx-1" />
             <button className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all active:scale-95">
-              Deploy App
+              部署应用
             </button>
           </div>
         </header>
 
-        {/* Message List */}
+        {/* 消息列表 */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth custom-scrollbar">
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-5 ${msg.role === 'user' ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-4 duration-300`}>
@@ -224,14 +224,14 @@ const MainLayout = () => {
                   )}
                 </div>
                 <span className="mt-2 text-[9px] font-bold text-slate-600 uppercase tracking-tighter">
-                  {msg.role === 'user' ? 'Developer' : msg.agentType?.toUpperCase() || 'AGENT'} • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.role === 'user' ? '开发者' : msg.agentType?.toUpperCase() || 'AGENT'} • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Input Area */}
+        {/* 输入区域 */}
         <div className="p-8 pt-4">
           <div className="max-w-4xl mx-auto relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-2xl blur opacity-10 group-focus-within:opacity-25 transition duration-500"></div>
@@ -240,7 +240,7 @@ const MainLayout = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-                placeholder="Message AgentHub... (Use @ to tag agents)"
+                placeholder="给 AgentHub 发送消息... (使用 @ 提及 Agent)"
                 className="flex-1 bg-transparent border-none focus:ring-0 text-sm py-3 px-4 min-h-[52px] max-h-48 resize-none text-slate-200 placeholder-slate-600"
               />
               <button 
@@ -257,25 +257,25 @@ const MainLayout = () => {
             </div>
           </div>
           <div className="mt-4 flex items-center justify-center gap-6 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-            <span className="flex items-center gap-1.5"><Terminal size={10} /> Local Node v20.x</span>
+            <span className="flex items-center gap-1.5"><Terminal size={10} /> 本地 Node v20.x</span>
             <span className="flex items-center gap-1.5"><Code size={10} /> Typescript 5.x</span>
-            <span className="flex items-center gap-1.5"><Layers size={10} /> Prisma DB Connected</span>
+            <span className="flex items-center gap-1.5"><Layers size={10} /> Prisma 数据库已连接</span>
           </div>
         </div>
       </main>
 
-      {/* Right Sidebar: Dynamic Workspace */}
+      {/* 右侧：动态工作区 */}
       <aside className="w-[450px] border-l border-slate-800/60 flex flex-col bg-slate-900/40 backdrop-blur-xl">
         <nav className="h-16 border-b border-slate-800/60 flex items-center px-6 gap-8">
           <button className="relative flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-indigo-400">
-            Preview
+            预览 (Preview)
             <div className="absolute -bottom-[23px] left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
           </button>
           <button className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors">
-            Diff
+            对比 (Diff)
           </button>
           <button className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors ml-auto">
-            History
+            历史记录
           </button>
         </nav>
         
@@ -292,9 +292,9 @@ const MainLayout = () => {
             <div className="w-20 h-20 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 shadow-2xl group transition-transform hover:rotate-3">
               <Code size={32} className="text-slate-700 group-hover:text-indigo-400 transition-colors" />
             </div>
-            <h3 className="text-sm font-bold text-slate-400 mb-2">Workspace Ready</h3>
+            <h3 className="text-sm font-bold text-slate-400 mb-2">工作区就绪</h3>
             <p className="text-[11px] text-slate-600 leading-relaxed max-w-[200px]">
-              AI generated previews and code comparisons will appear here.
+              AI 生成的预览效果和代码对比将显示在这里。
             </p>
           </div>
         </div>
