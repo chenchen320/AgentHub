@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { 
   MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers, 
-  Terminal, Zap, Github as GithubIcon, ChevronRight, PanelLeftClose, PlusCircle
+  Terminal, Zap, Globe, ChevronRight, PanelLeftClose, PlusCircle
 } from 'lucide-react';
 import type { ChatMessage } from '@agenthub/shared';
 import { AgentType } from '@agenthub/shared';
@@ -186,7 +186,7 @@ const MainLayout = () => {
               ))}
             </div>
             <button className="p-2 text-slate-400 hover:text-white transition-colors">
-              <GithubIcon size={18} />
+              <Globe size={18} />
             </button>
             <div className="h-4 w-[1px] bg-slate-800 mx-1" />
             <button className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all active:scale-95">
