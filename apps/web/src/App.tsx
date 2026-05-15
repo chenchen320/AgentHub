@@ -1,25 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MessageSquare, Code, Layout, Settings, Search, Send, User, Bot, Layers } from 'lucide-react';
+import { ChatMessage, AgentType, TaskStatus } from '@agenthub/shared';
+
 
 const MainLayout = () => {
-  const [messages, setMessages] = useState([
-    { role: 'agent', content: 'Hello! I am AgentHub. How can I help you build today?', timestamp: new Date() }
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { 
+      id: '1', 
+      conversationId: 'default', 
+      role: 'assistant', 
+      content: 'Hello! I am AgentHub. How can I help you build today?', 
+      agentType: AgentType.ORCHESTRATOR,
+      createdAt: new Date().toISOString() 
+    }
   ]);
   const [input, setInput] = useState('');
 
   const handleSend = () => {
     if (!input.trim()) return;
-    const userMsg = { role: 'user', content: input, timestamp: new Date() };
+    const userMsg: ChatMessage = { 
+      id: Date.now().toString(),
+      conversationId: 'default',
+      role: 'user', 
+      content: input, 
+      createdAt: new Date().toISOString() 
+    };
     setMessages([...messages, userMsg]);
     setInput('');
     
     // Simulate agent response
     setTimeout(() => {
       setMessages(prev => [...prev, { 
-        role: 'agent', 
+        id: (Date.now() + 1).toString(),
+        conversationId: 'default',
+        role: 'assistant', 
         content: `I've received your request: "${input}". I'll begin processing it shortly.`, 
-        timestamp: new Date() 
+        agentType: AgentType.ORCHESTRATOR,
+        createdAt: new Date().toISOString() 
       }]);
     }, 1000);
   };
@@ -80,7 +98,7 @@ const MainLayout = () => {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-              {msg.role === 'agent' && (
+              {msg.role === 'assistant' && (
                 <div className="w-8 h-8 rounded bg-indigo-600/20 text-indigo-400 flex items-center justify-center shrink-0">
                   <Bot size={20} />
                 </div>
@@ -92,7 +110,7 @@ const MainLayout = () => {
               }`}>
                 <p className="text-sm leading-relaxed">{msg.content}</p>
                 <div className="mt-2 text-[10px] opacity-50">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
+                  {new Date(msg.createdAt).toLocaleTimeString()}
                 </div>
               </div>
               {msg.role === 'user' && (
