@@ -1,24 +1,52 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-brand: #DFFF00; /* Acid Green */
+  --color-ink: #000000;
+  --color-paper: #FFFFFF;
+  --color-gray-soft: #1A1A1A;
+}
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  background-color: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Neo-Brutalist Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000;
+  border-left: 1px solid #333;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DFFF00;
+  border: 2px solid #000;
+}
+
+/* Utility for the 'hard' shadow */
+@utility shadow-brutal {
+  box-shadow: 4px 4px 0px 0px #DFFF00;
+}
+
+@utility shadow-brutal-white {
+  box-shadow: 4px 4px 0px 0px #FFFFFF;
+}
+
+@utility shadow-brutal-sm {
+  box-shadow: 2px 2px 0px 0px #DFFF00;
 }
